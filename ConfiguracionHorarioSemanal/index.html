@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidencia de Testing - AgendaYA</title>
+    <style>
+        /* Estilos generales para simular el panel de administración */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212; /* Fondo oscuro simulando el diseño de sus wireframes */
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .dashboard-card {
+            background-color: #1e1e24;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            font-size: 1.2rem;
+            color: #ffffff;
+        }
+
+        .horario-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 25px 0;
+            padding: 10px;
+            background-color: #2a2a35;
+            border-radius: 8px;
+        }
+
+        .dia-label {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="time"] {
+            background-color: #121212;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        /* Clase dinámica para el caso negativo (CP-F02) */
+        input.input-error {
+            border: 2px solid #ff4d4d !important;
+            background-color: rgba(255, 77, 77, 0.1);
+        }
+
+        .btn-guardar {
+            width: 100%;
+            background-color: #00d28a; /* Verde principal */
+            color: #121212;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-guardar:hover {
+            background-color: #00b377;
+        }
+
+        .btn-guardar:disabled {
+            background-color: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* Estilos del requerimiento no funcional M02-NF02 (Feedback Visual Toast) */
+        #toast-notification {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Estados del Toast */
+        #toast-notification.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        #toast-notification.success { background-color: #00d28a; color: #121212; }
+        #toast-notification.error { background-color: #ff4d4d; }
+
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-card">
+        <h2>Configuración de Horarios</h2>
+        
+        <div class="horario-row">
+            <span class="dia-label">Lunes</span>
+            <div class="input-group">
+                <input type="time" id="hora-inicio" value="09:00">
+                <span>a</span>
+                <input type="time" id="hora-fin" value="13:00">
+            </div>
+        </div>
+
+        <button id="btn-guardar" class="btn-guardar" onclick="guardarHorario()">Guardar Cambios</button>
+    </div>
+
+    <div id="toast-notification"></div>
+
+    <script>
+        // Lógica principal de ejecución de prueba
+        function guardarHorario() {
+            const horaInicio = document.getElementById('hora-inicio').value;
+            const horaFin = document.getElementById('hora-fin').value;
+            const btnGuardar = document.getElementById('btn-guardar');
+            const inputInicio = document.getElementById('hora-inicio');
+            const inputFin = document.getElementById('hora-fin');
+            
+            // Simulación CP-F02: Caso Negativo (Inconsistencia horaria)
+            if (horaInicio >= horaFin) {
+                mostrarToast("Error: La hora de fin debe ser posterior a la de inicio", "error");
+                
+                // Se resaltan los campos en rojo según el criterio de aceptación
+                inputInicio.classList.add('input-error');
+                inputFin.classList.add('input-error');
+                return;
+            }
+            
+            // Simulación CP-F01: Caso Positivo
+            // Limpieza de estado de error
+            inputInicio.classList.remove('input-error');
+            inputFin.classList.remove('input-error');
+            
+            // Simulación de carga a la base de datos
+            btnGuardar.disabled = true;
+            btnGuardar.textContent = "Guardando...";
+            
+            setTimeout(() => {
+                mostrarToast("Horarios actualizados correctamente", "success");
+                btnGuardar.disabled = false;
+                btnGuardar.textContent = "Guardar Cambios";
+            }, 600); // Pequeño retraso para simular la red
+        }
+
+        // Lógica del controlador del Toast
+        function mostrarToast(mensaje, tipo) {
+            const toast = document.getElementById('toast-notification');
+            
+            // Asignar texto y reiniciar clases
+            toast.textContent = mensaje;
+            toast.className = ''; 
+            
+            // Aplicar visibilidad y color (success o error)
+            toast.classList.add('visible', tipo);
+            
+            // El Toast desaparece estrictamente a los 3 segundos (Requerimiento M02-NF02)
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 3000); 
+        }
+    </script>
+</body>
+</html>
