@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgendaYA - Entorno de Pruebas TP5 (M02-F04)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f4f5f7;
+            color: #333;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #172b4d;
+            border-bottom: 2px solid #dfe1e6;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #5e6c84;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dfe1e6;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input[type="text"].error {
+            border-color: #de350b;
+            background-color: #ffebe6;
+        }
+
+        button {
+            background: #0052cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #0747a6;
+        }
+
+        /* Componente Toast Simulado */
+        /* Componente Toast Simulado */
+        .toast {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .toast.success {
+            display: block !important;
+            background: #e3fcef;
+            color: #006644;
+            border-left: 5px solid #36b37e;
+        }
+
+        .toast.danger {
+            display: block !important;
+            background: #ffebe6;
+            color: #bf2600;
+            border-left: 5px solid #de350b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Gestión de Disponibilidad</h2>
+        <p style="font-size: 13px; color: #6b778c;">Requerimiento M02-F04: Definición de intervalo entre turnos.</p>
+
+        <div class="form-group">
+            <label for="intervaloInput">Intervalo entre turnos (en minutos):</label>
+            <input type="text" id="intervaloInput" placeholder="Ej: 30">
+        </div>
+
+        <button id="btnGuardar">Guardar Configuración</button>
+
+        <div id="toastMessage" class="toast"></div>
+    </div>
+
+    <script>
+        document.getElementById('btnGuardar').addEventListener('click', function () {
+            const input = document.getElementById('intervaloInput');
+            const toast = document.getElementById('toastMessage');
+            const valorRaw = input.value.trim();
+
+            // Limpiar estados anteriores
+            input.classList.remove('error');
+            toast.className = 'toast';
+            toast.style.display = 'none';
+
+            // Conversión a número
+            const minutos = Number(valorRaw);
+
+            // --- LÓGICA DE NEGOCIO EN JS (Mapeada a los Casos de Prueba) ---
+
+            // Validación de tipo (por si ingresan letras)
+            if (valorRaw === "" || isNaN(minutos)) {
+                input.classList.add('error');
+                toast.style.display = 'block'; // Mostrar contenedor
+                toast.className = 'toast danger';
+                toast.innerText = "Error: Por favor, ingrese un valor numérico válido.";
+                return;
+            }
+
+            // Regla de negocio estricta: Rango permitido de 0 a 120 minutos
+            const MIN_LIMIT = 0;
+            const MAX_LIMIT = 120;
+
+            if (minutos < MIN_LIMIT || minutos > MAX_LIMIT) {
+                // COMPORTAMIENTO CASO NEGATIVO (CP-M02-04-NEG)
+                input.classList.add('error');
+                toast.style.display = 'block'; // Mostrar contenedor
+                toast.className = 'toast danger';
+                toast.innerText = `Error: El intervalo configurado (${minutos} min) excede el rango permitido de ${MIN_LIMIT} a ${MAX_LIMIT} minutos.`;
+            } else {
+                // COMPORTAMIENTO CASO POSITIVO (CP-M02-04-POS)
+                toast.style.display = 'block'; // Mostrar contenedor
+                toast.className = 'toast success';
+                toast.innerText = `¡Configuración guardada con éxito de manera transaccional! Intervalo establecido en ${minutos} minutos.`;
+
+                // Simular desaparición del Toast después de 3 segundos como pide el caso
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
